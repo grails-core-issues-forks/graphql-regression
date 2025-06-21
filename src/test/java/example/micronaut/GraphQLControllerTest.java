@@ -15,6 +15,9 @@
  */
 package example.micronaut;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micronaut.configuration.graphql.GraphQLResponseBody;
 import io.micronaut.core.type.Argument;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
@@ -57,6 +60,19 @@ class GraphQLControllerTest {
         Map<String, Object> author = (Map<String, Object>) bookById.get("author");
         assertEquals("Joanne", author.get("firstName"));
         assertEquals("Rowling", author.get("lastName"));
+    }
+
+    @Test
+    void testRawJackson() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String result = objectMapper.writeValueAsString(new GraphQLResponseBodyNotSerdeable(Map.of("data", "test")));
+        assertEquals("{\"data\":\"test\"}", result);
+    }
+
+    @Test
+    void testInjectedJackson(ObjectMapper objectMapper) throws JsonProcessingException {
+        String result = objectMapper.writeValueAsString(new GraphQLResponseBodyNotSerdeable(Map.of("data", "test")));
+        assertEquals("{\"data\":\"test\"}", result);
     }
 
     @Test
